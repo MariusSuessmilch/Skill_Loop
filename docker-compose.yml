@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: code-coach-backend
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - POSTGRES_USER=coach
+      - POSTGRES_PASSWORD=coachpw
+      - POSTGRES_DB=code_coach
+      - POSTGRES_HOST=db
+      - BACKEND_URL=http://backend:8000
+    env_file:
+    - ./backend/.env
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    container_name: code-coach-frontend
+    # volumes:
+    #   - ./frontend:/app
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+      - OPENAI_API_KEY
+
+  db:
+    image: postgres:15
+    container_name: code-coach-db
+    restart: always
+    environment:
+      POSTGRES_USER: coach
+      POSTGRES_PASSWORD: coachpw
+      POSTGRES_DB: code_coach
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
